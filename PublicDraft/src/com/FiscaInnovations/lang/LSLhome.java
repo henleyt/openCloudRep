@@ -2,16 +2,16 @@ package com.FiscaInnovations.lang;
 
 import java.util.ArrayList;
 
-public class LSLsearch extends LSLCore {
+public class LSLhome extends LSLCore {
 	private ArrayList<String> arrLang;
 	
-	public LSLsearch() {
+	public LSLhome() {
 		super();
 		arrLang = new ArrayList<String>();		
 		populateArray(false);
 	}	
 	
-	public LSLsearch(String langParam, boolean refTag)  {
+	public LSLhome(String langParam, boolean refTag)  {
 		super(langParam);
 		arrLang = new ArrayList<String>();		
 		populateArray(refTag);
@@ -19,15 +19,13 @@ public class LSLsearch extends LSLCore {
 	
 	private void populateArray(boolean refTag) {
 		if(super.lang == LangSet.en) {
-			arrLang.add(0, "Search - Fisca Innovations");
-			arrLang.add(1, "Search field: ");
-			arrLang.add(2, "Submit");
+			arrLang.add(0, "Home - Fisca Innovations");
+			arrLang.add(1, "This is home.");
 		}
 		
 		else if(super.lang == LangSet.fr) {
-			arrLang.add(0, "Recherche - Fisca Innovations");
-			arrLang.add(1, "Champ de recherche: ");
-			arrLang.add(2, "Soumettre");
+			arrLang.add(0, "Maison - Fisca Innovations");
+			arrLang.add(1, "Ici la maison.");
 		}
 			
 		if(refTag)

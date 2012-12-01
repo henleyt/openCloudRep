@@ -1,29 +1,25 @@
 package com.FiscaInnovations;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.FiscaInnovations.lang.LSLsearch;
-
+import java.util.ArrayList;
+import java.io.PrintWriter;
+import javax.servlet.http.HttpSession;
 import net.sf.json.JSONObject;
 
-/**
- * Servlet implementation class SearchServlet
- */
+import com.FiscaInnovations.lang.LSLsearch;
 
-@WebServlet({ "/SearchServlet", "/search" })
+@WebServlet({"/SearchServlet", "/search"})
 public class SearchServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	//Vérifier pour scope session. Seulement 1 objet de type
-		
+	
 	String[] someData;
 	
     /**
@@ -38,19 +34,30 @@ public class SearchServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException	{		
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException	{									
 		
-		String lang = request.getParameter("lang");
+		HttpSession session = request.getSession();			
+		if(session == null || (String) session.getAttribute("lang") == null) {		
+			response.sendRedirect(request.getContextPath()+"/welcome");
+			session.invalidate();
+			return;
+		}	
+		else if((Object) request.getAttribute("langHome") == null || (Object) request.getAttribute("langFoot")== null) {
+			response.sendRedirect(request.getContextPath()+"/home");
+			return;
+		}
+			
 		ArrayList<String> results = doSearch(request.getParameter("searchTerms"));
-
+		String lang = session.getAttribute("lang").toString();				
+		
 		LSLsearch searchText = new LSLsearch(lang, /*true = show refTag*/ false);		
 		
 		SearchResults resultsBean = new SearchResults();				
 		resultsBean.setResultsHTML(resultsToHtml(results, lang));
 		
-		request.setAttribute("langBean", searchText);
+		request.setAttribute("langSearch", searchText);
 		request.setAttribute("resultsBean", resultsBean);
-			
+				
 		request.getRequestDispatcher("/WEB-INF/search.jsp").include(request, response);		
 	}
 
@@ -58,6 +65,13 @@ public class SearchServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		HttpSession session = request.getSession();			
+		if(session == null || (String) session.getAttribute("lang") == null) {		
+			response.sendRedirect(request.getContextPath()+"/welcome");
+			session.invalidate();
+			return;
+		}		
 		
 		JSONObject json = new JSONObject();
 		response.setCharacterEncoding("UTF-8");
@@ -65,7 +79,7 @@ public class SearchServlet extends HttpServlet {
 		PrintWriter out= response.getWriter();   
 
 		ArrayList<String> results = doSearch(request.getParameter("searchTerms"));
-		String lang = request.getParameter("lang");
+		String lang = (String) session.getAttribute("lang");
 		
 		json.put("resultsDivHTML", resultsToHtml(results,lang));
 		
@@ -86,7 +100,7 @@ public class SearchServlet extends HttpServlet {
 		else
 			return null;						
 	}
-	
+
 	protected String resultsToHtml(ArrayList<String> results, String lang) {
 				
 		String resultsHtml;
